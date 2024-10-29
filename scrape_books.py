@@ -1,11 +1,12 @@
 import csv
 import requests
 from bs4 import BeautifulSoup
+import argparse
+import time
 
 # Define the base URL and headers
 base_url = "https://lubimyczytac.pl/katalog"
 params = {
-    "page": 1,
     "listId": "booksFilteredList",
     "onlyPublished": 1,
     "rating[0]": 0,
@@ -35,10 +36,18 @@ def extract_books_from_page(soup):
     return books
 
 # Function to scrape all pages
-def scrape_books():
+def scrape_books(start_page, num_books):
+    params['page'] = start_page
     books = []
-    while len(books) < 500:
+    while len(books) < num_books:
         response = requests.get(base_url, params=params, headers=headers)
+
+        if response.status_code != 200:
+            if response.status_code == 429:
+                time.sleep(15)
+            print(response.status_code)
+            continue
+
         soup = BeautifulSoup(response.content, 'html.parser')
         
         # Extract books from the current page
@@ -57,15 +66,26 @@ def scrape_books():
         else:
             # No more pages
             break
+    print(f"Next page to scrape: {next_page}")
     return books
 
-# Scrape the books
-books_list = scrape_books()
+def main():
+    parser = argparse.ArgumentParser(description="Scrape book data from lubimyczytac.pl")
+    parser.add_argument('page', type=int, help="Starting page number for scraping")
+    parser.add_argument('num_books', type=int, help="Number of books to scrape")
+    args = parser.parse_args()
+    
+    # Scrape the books starting from the specified page
+    books_list = scrape_books(args.page, args.num_books)
+    
+    # # Append books to the CSV file
+    with open(csv_file_path, mode='a', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        if file.tell() == 0:  # Check if file is empty and write headers
+            writer.writerow(['Title', 'Link'])
+        writer.writerows(books_list)
+    
+    print(f"Books appended to {csv_file_path}")
 
-# Save books to CSV
-with open(csv_file_path, mode='w', newline='', encoding='utf-8') as file:
-    writer = csv.writer(file)
-    writer.writerow(['Title', 'Link'])
-    writer.writerows(books_list)
-
-print(f"Books saved to {csv_file_path}")
+if __name__ == "__main__":
+    main()
