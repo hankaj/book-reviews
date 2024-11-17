@@ -1,0 +1,9 @@
+* zmienić scrape_books.py i scrape_reviews.py na podstawie skryptow z lubimy czytac
+* scrape_books: na razie pobiera tytuly tylko z pierwszej strony, zeby pobieralo z nastepnych stron wystarczy dodac parametr w url: https://www.goodreads.com/list/show/1.Best_Books_Ever?page=2&ref=ls_pl_car_0 <- tu dla page 2
+* scrape_reviews: usunac break'i
+* dla obu skryptow polecam zeby zapisywaly batchami, tzn po 1000 rekordow np, zeby nie stracic wszystkiego jak sie skrypt wywali w polowie
+
+uwagi:
+* mozliwe ze sa jakies blokady jesli chodzi o ilosc requestow, z lubimy czytac dostawalam 429 czyli wlasnie chyba too many requests, wystarczylo w tym przypadku 15 sekund poczekac (time.sleep(15)) i bylo git, trzeba przetestowac jak good reads reaguje
+* nie wszystkie recenzje sa po angielsku, mozna przefiltrowac to na stronie, ale ten filtr jest chyba obsluzony po stronie backendu, więc nie wiem jak to zrobic botem, pewnie jakos sie da, ale chyba jest malo tych nieangielskich recenzji wiec mozliwe ze nie bedzie z tym problemu
+* recenzje sa dluzsze niz na lubimy czytac, pytanie do Kasi i Mateusza ile slow max jest git, bo mozna by albo je obcinac albo takich dlugich w ogole nie pobierac, zeby nie miec jakichs gigantycznych ilosci tekstu w datasecie
